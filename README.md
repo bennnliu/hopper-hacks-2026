@@ -7,6 +7,7 @@ Frameworks/Libraries: React-Vite, Tailwindcss , Django, Phaser, Devnet
 * Make sure git is installed: [git-install](https://git-scm.com/install/)
 * Inside your repositories folder or any folder you want to store your project, open the terminal
 * Inside your terminal run this command:
+  
     ```bash
     git clone https://github.com/bennnliu/hopper-hacks-2026
     ```
