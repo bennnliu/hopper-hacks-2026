@@ -9,18 +9,18 @@ This guide outlines the steps to create a fast, modern React development environ
 Ensure you have Node.js installed on your machine.
 * Download Node.js: [nodejs.org](https://nodejs.org/)
 * Verify your installation by running the following commands in your terminal:
-  ```
+  ```bash
   node -v
   npm -v 
   ```
 * Look for [package.json](frontend\package.json)
 * To ensure all packages are downloaded, run this command in your terminal:
-    ```
+    ```bash
     cd frontend
     npm install
     ```
 * Run the development server command in your terminal:
-    ```
+    ```bash
     npm run dev
     ```
 * If there are no errors then your frontend environment is setup.
