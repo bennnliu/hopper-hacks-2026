@@ -1,6 +1,4 @@
-// ui/HomeScreen.tsx
-// Add to index.html <head>:
-// <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
 
 import { useEffect, useState } from 'react';
 import { HowToPlay } from './HowToPlay';
@@ -174,7 +172,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
       <div className="relative z-10 flex flex-col h-full">
 
-        {/* Top bar */}
+       
         <div className="flex justify-end px-6 py-3">
           {shortAddress ? (
             <div className="px-wallet-connected">◈ {shortAddress}</div>
@@ -187,10 +185,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         <div className="px-sep mx-6" />
 
-        {/* Main content */}
         <div className="flex flex-col items-center justify-center flex-1 gap-6 px-10">
 
-          {/* Title */}
+
           <div className="text-center">
             <div className="px-title-green" style={{ fontSize: '3.4rem', lineHeight: 1, letterSpacing: 4 }}>
               CIRCUIT
@@ -203,17 +200,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
           </div>
 
-          {/* Play button */}
+        
           <button className="px-btn" onClick={onPlay}>
             ▶  PLAY
           </button>
 
-          {/* Controls */}
+          
           <div style={{ fontSize: 7, color: '#00ff46', letterSpacing: 1 }}>
             <span className="px-key">WASD</span>MOVE &nbsp;&nbsp;
           </div>
 
-          {/* Footer links — now wired to modal state */}
+         
           <div style={{ fontSize: 7, color: 'rgba(0,255,70,0.28)', letterSpacing: 2 }}>
             <span className="px-footer-link" onClick={() => setModal('howtoplay')}>
               HOW TO PLAY
@@ -226,7 +223,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         </div>
 
-        {/* Bottom bar */}
+        
         <div className="px-sep mx-6" />
         <div className="flex items-center justify-center gap-3 px-6 py-3">
           <span className="px-blink" style={{ fontSize: 10, color: '#ffd700' }}></span>
@@ -237,7 +234,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
       </div>
 
-      {/* Modals — rendered inside screen boundary so they respect the CRT frame */}
+      
       {modal === 'howtoplay' && <HowToPlay onClose={() => setModal(null)} />}
       {modal === 'credits'   && <Credits   onClose={() => setModal(null)} />}
 

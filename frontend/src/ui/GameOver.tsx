@@ -11,7 +11,6 @@ export const GameOver: React.FC<GameOverProps> = ({ won, score, onRestart, onQui
       className="px-font absolute inset-0 z-30 flex items-center justify-center"
       style={{ background: 'rgba(0,0,0,0.9)' }}
     >
-      {/* Scanlines */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -20,7 +19,7 @@ export const GameOver: React.FC<GameOverProps> = ({ won, score, onRestart, onQui
         }}
       />
 
-      {/* Panel */}
+    
       <div
         className="relative z-10 flex flex-col items-center gap-5 px-12 py-10"
         style={{
@@ -37,12 +36,9 @@ export const GameOver: React.FC<GameOverProps> = ({ won, score, onRestart, onQui
           minWidth: 340,
         }}
       >
-        {/* CRT corners */}
-        {(['top-0 left-0', 'top-0 right-0', 'bottom-0 left-0', 'bottom-0 right-0'] as const).map((pos) => (
-          <div key={pos} className={`absolute ${pos} w-3 h-3 bg-black`} />
-        ))}
+        
 
-        {/* Title */}
+        
         <div
           className={won ? 'px-title-green' : 'px-title-red'}
           style={{ fontSize: '1.8rem', letterSpacing: 4, textAlign: 'center' }}
@@ -58,12 +54,12 @@ export const GameOver: React.FC<GameOverProps> = ({ won, score, onRestart, onQui
           }}
         />
 
-        {/* Result message */}
+       
         <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textAlign: 'center' }}>
           {won ? 'ENEMY UNIT DESTROYED' : 'HP LOST'}
         </div>
 
-        {/* Score box */}
+       
         <div
           className="flex flex-col items-center gap-2 w-full py-4 px-6"
           style={{
@@ -86,7 +82,7 @@ export const GameOver: React.FC<GameOverProps> = ({ won, score, onRestart, onQui
           </span>
         </div>
 
-        {/* SOL reward hint — only on win */}
+        
         {won && (
           <div style={{ fontSize: 7, color: '#ffd700', letterSpacing: 2, textShadow: '2px 2px 0 #7a5c00', textAlign: 'center' }}>
             ◎ SOLONA MONEY SENT TO WALLET
@@ -101,7 +97,6 @@ export const GameOver: React.FC<GameOverProps> = ({ won, score, onRestart, onQui
           }}
         />
 
-        {/* Buttons */}
         <div className="flex flex-col items-center gap-4 w-full">
           <button
             className="px-btn w-full text-center"
@@ -140,7 +135,7 @@ export const GameOver: React.FC<GameOverProps> = ({ won, score, onRestart, onQui
           </button>
         </div>
 
-        {/* Bottom insert coin */}
+
         <div className="flex items-center justify-center gap-3">
           
           <span style={{ fontSize: 7, color: '#ffd700', letterSpacing: 3, textShadow: '2px 2px 0 #7a5c00, 0 0 10px rgba(255,215,0,0.5)' }}>

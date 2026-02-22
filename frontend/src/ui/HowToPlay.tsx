@@ -31,7 +31,7 @@ export const HowToPlay: React.FC<HowToPlayProps> = ({ onClose }) => {
         }}
       >
 
-        {/* Header */}
+        
         <div className="flex items-center justify-between">
           <span className="px-title-green" style={{ fontSize: '1rem', letterSpacing: 4 }}>HOW TO PLAY</span>
           <button
@@ -45,7 +45,7 @@ export const HowToPlay: React.FC<HowToPlayProps> = ({ onClose }) => {
 
         <div className="px-sep" />
 
-        {/* Content */}
+        
         <div className="flex flex-col gap-4" style={{ fontSize: 7, lineHeight: 2.2, color: 'rgba(0,255,70,0.55)', letterSpacing: 1 }}>
 
           <p>
