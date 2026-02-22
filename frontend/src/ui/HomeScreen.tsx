@@ -3,6 +3,8 @@ import { Credits } from './Credits';
 
 interface HomeScreenProps {
   onPlay: () => void;
+  onConnectWallet: () => void;
+  shortAddress: string | null;
 }
 
 const injectStyles = () => {
@@ -86,7 +88,8 @@ const injectStyles = () => {
   document.head.appendChild(style);
 };
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onPlay }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onPlay , onConnectWallet, 
+  shortAddress }) => {
   useEffect(() => { injectStyles(); }, []);
 
   const [showCredits, setShowCredits] = useState(false);
@@ -117,7 +120,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onPlay }) => {
     >
       <div className="relative z-10 flex flex-col h-full">
 
-        <div style={{ minHeight: 42 }} />
+       
+        <div className="flex justify-end px-6 py-3">
+          {shortAddress ? (
+            <div className="px-wallet-connected">◈ {shortAddress}</div>
+          ) : (
+            <button className="px-wallet-btn" onClick={onConnectWallet}>
+              ◈ LINK TO SOLONA WALLET
+            </button>
+          )}
+        </div>
 
         <div className="px-sep mx-6" />
 
@@ -125,13 +137,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onPlay }) => {
 
           <div className="text-center">
             <div className="px-title-green" style={{ fontSize: '3.4rem', lineHeight: 1, letterSpacing: 4 }}>
-              CIRCUIT
+              SOLQUEST
             </div>
             <div className="px-title-red" style={{ fontSize: '3.4rem', lineHeight: 1, letterSpacing: 4, marginTop: 6 }}>
-              BREAKER
+              DUNGEON
             </div>
             <div style={{ fontSize: 7, color: '#00ff46', letterSpacing: 3, marginTop: 10 }}>
-              ── HACK · FIGHT · EARN ──
+              HACK - FIGHT - EARN 
             </div>
           </div>
 
@@ -139,6 +151,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onPlay }) => {
             ▶  PLAY
           </button>
 
+          
+          <div style={{ fontSize: 7, color: '#00ff46', letterSpacing: 1 }}>
+            <span className="px-key">WASD</span>MOVE &nbsp;&nbsp;
+            <span className="px-key">SPACE</span>ATTACK &nbsp;&nbsp;
+          </div>
+
+         
           <div style={{ fontSize: 7, color: 'rgba(0,255,70,0.28)', letterSpacing: 2 }}>
             <span className="px-footer-link" onClick={() => setShowCredits(true)}>
               CREDITS

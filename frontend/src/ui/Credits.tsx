@@ -58,7 +58,8 @@ export const Credits: React.FC<CreditsProps> = ({ onClose }) => {
           <p>
             BUILT WITH <span style={{ color: '#00ff46' }}>
             < br />PHASER 3</span>< br />
-            <span style={{ color: '#00ff46' }}>REACT</span>< br />
+            <span style={{ color: '#00ff46' }}>DEVNET</span>< br />
+            <span style={{ color: '#00ff46' }}>REACT-VITE</span>< br />
             <span style={{ color: '#00ff46' }}>TYPESCRIPT</span>< br />
             <span style={{ color: '#00ff46' }}>TAILWIND CSS</span> < br />
             <span style={{ color: '#00ff46' }}>SOLANA BLOCKCHAIN </span> 

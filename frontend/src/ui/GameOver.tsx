@@ -68,7 +68,7 @@ export const GameOver: React.FC<GameOverProps> = ({ won, score, onRestart, onQui
           }}
         >
           <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.3)', letterSpacing: 3 }}>
-            FINAL SCORE
+            COINS RECEIVED
           </span>
           <span
             style={{
@@ -131,7 +131,7 @@ export const GameOver: React.FC<GameOverProps> = ({ won, score, onRestart, onQui
             onMouseUp={e => (e.target as HTMLButtonElement).style.transform = ''}
             onClick={onQuit}
           >
-             MAIN MENU
+             HOMEPAGE
           </button>
         </div>
 

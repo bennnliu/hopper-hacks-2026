@@ -70,7 +70,7 @@ export const HowToPlay: React.FC<HowToPlayProps> = ({ onClose }) => {
 
           <p>
             <span style={{ color: '#ffd700' }}> SOLANA MONEY </span> — SENT DIRECTLY
-            TO YOUR SOLANA WALLET
+            TO YOUR SOLONA WALLET
           </p>
 
         </div>

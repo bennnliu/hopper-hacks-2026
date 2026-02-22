@@ -13,6 +13,7 @@ export class Start extends Phaser.Scene {
         this.load.image('coin', 'assets/coin.png');
         this.load.image('wall', 'assets/wall.jpg');
         this.load.image('slash', 'assets/slash.png');
+        this.load.image('exit','assets/exit.png')
     }
 
 async create() {
@@ -109,6 +110,9 @@ async killEnemy(enemy) {
         const ratio = Phaser.Math.Clamp(this.health / this.maxHealth, 0, 1);
         this.healthBarFill.width = 200 * ratio;
         this.healthBarFill.setFillStyle(ratio > 0.5 ? 0x00cc44 : ratio > 0.25 ? 0xffcc00 : 0xcc2200);
+        if (this.health <= 0) {
+    this.game.events.emit('PLAYER_DIED', this.coinCount);
+}
     }
 
     updateEnemyHealthBars() {
@@ -185,6 +189,7 @@ async killEnemy(enemy) {
             if (time > this.lastFired + 300) { this.lastFired = time; this.fireBullet(); }
         } else {
             this.player.setTexture(moving ? 'manBlue_hold' : 'manBlue_stand');
+            
         }
 
         const wp = this.cameras.main.getWorldPoint(this.input.activePointer.x, this.input.activePointer.y);
@@ -310,6 +315,10 @@ async killEnemy(enemy) {
                 this.coinCount++;
                 this.coinText.setText(`🪙 ${this.coinCount}`);
             }
+        }const activeEnemies = this.enemies.filter(e => e.sprite !== null);
+        if (activeEnemies.length === 0 && this.enemies.length > 0) {
+            this.game.events.emit('PLAYER_WON', this.coinCount);  
+            
         }
 
         this.updateEnemyHealthBars();
