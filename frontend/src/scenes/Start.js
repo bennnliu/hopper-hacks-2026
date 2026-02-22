@@ -12,18 +12,17 @@ export class Start extends Phaser.Scene {
         this.load.image('enemy', 'assets/enemy.png');
         this.load.image('coin', 'assets/coin.png');
         this.load.image('wall', 'assets/wall.jpg');
+        this.load.image('slash', 'assets/slash.png');
     }
 
     // ─── Level Layout ────────────────────────────────────────────────────────────
     // 0 = floor, 1 = wall
     // A wide-open world (40 × 23 tiles, 64px each = 2560 × 1472)
-    // Design: large open zones connected by corridors, with scattered cover objects.
 
     buildMatrix() {
         const COLS = 40;
         const ROWS = 23;
 
-        // Start with all floor
         const g = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 
         const wall = (c, r) => {
@@ -36,59 +35,49 @@ export class Start extends Phaser.Scene {
                 for (let col = c; col < c + w; col++) wall(col, row);
         };
 
-        // ── Outer border ──
         hWall(0, 0, COLS);
         hWall(0, ROWS - 1, COLS);
         vWall(0, 0, ROWS);
         vWall(COLS - 1, 0, ROWS);
 
-        // ── Top-left open arena: 4 small pillars for cover ──
         solid(3, 3, 2, 2);
         solid(9, 3, 2, 2);
         solid(3, 8, 2, 2);
         solid(9, 8, 2, 2);
 
-        // ── Top-centre: narrow two-lane corridor (walls either side) ──
         vWall(15, 1, 5);
         vWall(17, 1, 5);
         vWall(15, 8, 4);
         vWall(17, 8, 4);
 
-        // ── Centre hub: walled room with 4 doorways ──
-        hWall(19, 8, 7);    // top
-        hWall(19, 14, 7);   // bottom
-        vWall(19, 8, 7);    // left
-        vWall(25, 8, 7);    // right
-        // Doorways (clear single tiles)
-        g[11][19] = 0;  // left door
-        g[11][25] = 0;  // right door
-        g[8][22]  = 0;  // top door
-        g[14][22] = 0;  // bottom door
+        hWall(19, 8, 7);
+        hWall(19, 14, 7);
+        vWall(19, 8, 7);
+        vWall(25, 8, 7);
+        g[11][19] = 0;
+        g[11][25] = 0;
+        g[8][22]  = 0;
+        g[14][22] = 0;
 
-        // ── Right zone: scattered pillars ──
         solid(28, 3, 2, 2);
         solid(34, 3, 2, 2);
         solid(28, 9, 2, 2);
         solid(34, 9, 2, 2);
         solid(31, 6, 2, 2);
 
-        // ── Bottom-left: long horizontal barricades ──
         hWall(2, 17, 7);
         hWall(2, 19, 5);
 
-        // ── Bottom-centre: T-shaped cover ──
         hWall(14, 17, 7);
         vWall(17, 17, 4);
 
-        // ── Bottom-right: enclosed room with two openings ──
-        hWall(27, 15, 8); // top
-        hWall(27, 21, 8); // bottom
-        vWall(27, 15, 7); // left
-        vWall(34, 15, 7); // right
-        g[15][30] = 0;    // top door
-        g[18][27] = 0;    // left door
+        hWall(27, 15, 8);
+        hWall(27, 21, 8);
+        vWall(27, 15, 7);
+        vWall(34, 15, 7);
+        g[15][30] = 0;
+        g[18][27] = 0;
 
-        // ── Right-edge vertical barrier ──
         vWall(37, 3, 5);
         vWall(37, 12, 5);
 
@@ -106,7 +95,6 @@ export class Start extends Phaser.Scene {
         this.COLS      = COLS;
         this.ROWS      = ROWS;
 
-        // Render tiles
         grid.forEach((row, r) => {
             row.forEach((cell, c) => {
                 const x = c * TILE_SIZE + TILE_SIZE / 2;
@@ -116,16 +104,14 @@ export class Start extends Phaser.Scene {
             });
         });
 
-        // World / camera bounds
         this.physics.world.setBounds(0, 0, COLS * TILE_SIZE, ROWS * TILE_SIZE);
         this.cameras.main.setBounds(0, 0, COLS * TILE_SIZE, ROWS * TILE_SIZE);
 
-        // ── Enemies (4 total) — placed in distinct open zones ──────────────────
         const spawns = [
-            { col: 11, row: 5  },  // top-left arena (far side from player spawn)
-            { col: 22, row: 11 },  // inside centre room
-            { col: 31, row: 5  },  // right pillar zone
-            { col: 30, row: 18 },  // bottom-right room
+            { col: 11, row: 5  },
+            { col: 22, row: 11 },
+            { col: 31, row: 5  },
+            { col: 30, row: 18 },
         ];
 
         this.enemies = spawns.map(({ col, row }) => {
@@ -135,18 +121,18 @@ export class Start extends Phaser.Scene {
             const barBg  = this.add.rectangle(ex, ey - 50, 60, 7, 0x333333).setDepth(10);
             const barFg  = this.add.rectangle(ex - 30, ey - 50, 60, 7, 0xcc2200)
                 .setOrigin(0, 0.5).setDepth(10);
-            return { sprite, hp: 100, maxHp: 100, barBg, barFg };
+            return { sprite, hp: 100, maxHp: 100, barBg, barFg, lastSlash: 0 };
         });
 
-        // ── Player — spawns top-left open area ─────────────────────────────────
         this.player    = this.add.image(6 * TILE_SIZE, 6 * TILE_SIZE, 'manBlue_stand').setDepth(6);
         this.lastAngle = 0;
         this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
 
-        this.bullets   = [];
-        this.lastFired = 0;
-        this.coins     = [];
-        this.coinCount = 0;
+        this.bullets    = [];
+        this.lastFired  = 0;
+        this.coins      = [];
+        this.coinCount  = 0;
+        this.slashes    = []; // enemy slash projectiles
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys({
@@ -213,6 +199,10 @@ export class Start extends Phaser.Scene {
             e.barFg.x = e.sprite.x - 30;
             e.barFg.y = e.sprite.y - 50;
             e.barFg.width = 60 * ratio;
+
+            // Face the player
+            const angle = Phaser.Math.Angle.Between(e.sprite.x, e.sprite.y, this.player.x, this.player.y);
+            e.sprite.setAngle(Phaser.Math.RadToDeg(angle) + 180);
         }
     }
 
@@ -224,6 +214,26 @@ export class Start extends Phaser.Scene {
         bullet.vx = Math.cos(angleRad) * 10;
         bullet.vy = Math.sin(angleRad) * 10;
         this.bullets.push(bullet);
+    }
+
+    // Fire a slash projectile from an enemy toward the player's current position
+    fireSlash(enemy) {
+        const angleRad = Phaser.Math.Angle.Between(
+            enemy.sprite.x, enemy.sprite.y,
+            this.player.x, this.player.y
+        );
+        const SPEED = 4; // moderate, threatening but dodge-able
+
+        const slash = this.add.image(enemy.sprite.x, enemy.sprite.y, 'slash')
+            .setScale(0.35)
+            .setDepth(7)
+            // slash.png faces left (180°), rotate +180 so it points toward the target
+            .setAngle(Phaser.Math.RadToDeg(angleRad) + 180);
+
+        slash.vx = Math.cos(angleRad) * SPEED;
+        slash.vy = Math.sin(angleRad) * SPEED;
+
+        this.slashes.push(slash);
     }
 
     // ─── Update ──────────────────────────────────────────────────────────────────
@@ -260,6 +270,15 @@ export class Start extends Phaser.Scene {
         this.lastAngle = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(this.player.x, this.player.y, wp.x, wp.y));
         this.player.setAngle(this.lastAngle);
 
+        // ── Enemy slash firing (every 5 seconds per enemy) ──
+        for (const e of this.enemies) {
+            if (!e.sprite) continue;
+            if (time > e.lastSlash + 5000) {
+                e.lastSlash = time;
+                this.fireSlash(e);
+            }
+        }
+
         // ── Bullets ──
         for (let i = this.bullets.length - 1; i >= 0; i--) {
             const b = this.bullets[i];
@@ -288,6 +307,36 @@ export class Start extends Phaser.Scene {
             if (b.x < 0 || b.x > this.COLS * this.TILE_SIZE ||
                 b.y < 0 || b.y > this.ROWS * this.TILE_SIZE) {
                 b.destroy(); this.bullets.splice(i, 1);
+            }
+        }
+
+        // ── Slashes ──
+        for (let i = this.slashes.length - 1; i >= 0; i--) {
+            const s = this.slashes[i];
+            s.x += s.vx;
+            s.y += s.vy;
+
+            // Destroy on wall hit
+            if (this.isWall(s.x, s.y)) {
+                s.destroy(); this.slashes.splice(i, 1); continue;
+            }
+
+            // Destroy out of bounds
+            if (s.x < 0 || s.x > this.COLS * this.TILE_SIZE ||
+                s.y < 0 || s.y > this.ROWS * this.TILE_SIZE) {
+                s.destroy(); this.slashes.splice(i, 1); continue;
+            }
+
+            // Hit player
+            const dist = Phaser.Math.Distance.Between(s.x, s.y, this.player.x, this.player.y);
+            if (dist < 24) {
+                s.destroy(); this.slashes.splice(i, 1);
+                this.health -= 15;
+                this.health = Math.max(0, this.health);
+                // Brief red flash on player to signal damage
+                this.player.setTint(0xff0000);
+                this.time.delayedCall(150, () => this.player.clearTint());
+                continue;
             }
         }
 
