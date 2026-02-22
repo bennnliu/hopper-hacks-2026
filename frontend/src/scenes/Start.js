@@ -202,7 +202,7 @@ export class Start extends Phaser.Scene {
 
             // Face the player
             const angle = Phaser.Math.Angle.Between(e.sprite.x, e.sprite.y, this.player.x, this.player.y);
-            e.sprite.setAngle(Phaser.Math.RadToDeg(angle) + 180);
+            e.sprite.setAngle(Phaser.Math.RadToDeg(angle) + 135);
         }
     }
 
@@ -298,6 +298,47 @@ export class Start extends Phaser.Scene {
                         this.coins.push(this.add.image(e.sprite.x, e.sprite.y, 'coin').setScale(0.4));
                         e.sprite.destroy(); e.barBg.destroy(); e.barFg.destroy();
                         e.sprite = null;
+                    } else {
+                        // ── Damage animation: red flash + knockback shake ──
+                        const sx = e.sprite.x;
+                        const sy = e.sprite.y;
+                        e.sprite.setTint(0xff0000);
+
+                        // Floating damage number
+                        const dmgText = this.add.text(sx, sy - 30, '-10', {
+                            fontSize: '20px', fill: '#ff4444',
+                            fontFamily: 'Arial', stroke: '#000000', strokeThickness: 3,
+                        }).setDepth(20).setOrigin(0.5);
+
+                        // Nudge sprite in the direction the bullet came from (recoil feel)
+                        const bAngle = Phaser.Math.Angle.Between(sx, sy, b.x, b.y);
+                        const kickX  = Math.cos(bAngle) * 6;
+                        const kickY  = Math.sin(bAngle) * 6;
+
+                        this.tweens.add({
+                            targets: e.sprite,
+                            x: sx + kickX,
+                            y: sy + kickY,
+                            duration: 60,
+                            yoyo: true,
+                            onComplete: () => {
+                                if (e.sprite) {
+                                    e.sprite.x = sx;
+                                    e.sprite.y = sy;
+                                    e.sprite.clearTint();
+                                }
+                            }
+                        });
+
+                        // Float damage number upward then fade out
+                        this.tweens.add({
+                            targets: dmgText,
+                            y: sy - 70,
+                            alpha: 0,
+                            duration: 600,
+                            ease: 'Power1',
+                            onComplete: () => dmgText.destroy(),
+                        });
                     }
                     hit = true; break;
                 }
