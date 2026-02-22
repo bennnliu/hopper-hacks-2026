@@ -15,156 +15,77 @@ export class Start extends Phaser.Scene {
         this.load.image('slash', 'assets/slash.png');
     }
 
-    // ─── Level Layout ────────────────────────────────────────────────────────────
-    // 0 = floor, 1 = wall
-    // A wide-open world (40 × 23 tiles, 64px each = 2560 × 1472)
+async create() {
+    const res = await fetch("/api/v1/generate/room/?rooms_cleared=0", {
+        headers: {
+            Authorization: "Bearer " + token
+        }
+    });
 
-    buildMatrix() {
-        const COLS = 40;
-        const ROWS = 23;
+    const room = await res.json();
 
-        const g = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    this.buildRoomFromBackend(room);
+}
+buildRoomFromBackend(room) {
+    const tiles = room.layout.tiles;
+    const TILE = 64;
 
-        const wall = (c, r) => {
-            if (r >= 0 && r < ROWS && c >= 0 && c < COLS) g[r][c] = 1;
+    this.matrix = tiles;
+    this.ROWS = tiles.length;
+    this.COLS = tiles[0].length;
+
+    tiles.forEach((row, r) => {
+        row.forEach((cell, c) => {
+            const x = c * TILE + TILE/2;
+            const y = r * TILE + TILE/2;
+
+            let texture = "floor";
+            if (cell === 1) texture = "wall";
+            if (cell === 2) texture = "exit";
+
+            this.add.image(x, y, texture).setDisplaySize(TILE, TILE);
+        });
+    });
+
+    const spawn = room.layout.spawn_point;
+    this.player.setPosition(
+        spawn.x * TILE + TILE/2,
+        spawn.y * TILE + TILE/2
+    );
+
+    this.spawnEnemies(room.enemies);
+}
+
+spawnEnemies(enemyList) {
+    this.enemies = enemyList.map(e => {
+        const sprite = this.add.image(randomX, randomY, "enemy");
+
+        return {
+            id: e.id,
+            sprite,
+            hp: e.health,
+            maxHp: e.max_health,
+            coin_reward: e.coin_reward,
         };
-        const hWall = (c, r, len) => { for (let i = 0; i < len; i++) wall(c + i, r); };
-        const vWall = (c, r, len) => { for (let i = 0; i < len; i++) wall(c, r + i); };
-        const solid = (c, r, w, h) => {
-            for (let row = r; row < r + h; row++)
-                for (let col = c; col < c + w; col++) wall(col, row);
-        };
+    });
+}
 
-        hWall(0, 0, COLS);
-        hWall(0, ROWS - 1, COLS);
-        vWall(0, 0, ROWS);
-        vWall(COLS - 1, 0, ROWS);
+async killEnemy(enemy) {
+    await fetch("/api/v1/generate/kill-enemy/", {
+        method: "POST",
+        headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            enemy_id: enemy.id,
+            coins: enemy.coin_reward
+        })
+    });
+}
 
-        solid(3, 3, 2, 2);
-        solid(9, 3, 2, 2);
-        solid(3, 8, 2, 2);
-        solid(9, 8, 2, 2);
 
-        vWall(15, 1, 5);
-        vWall(17, 1, 5);
-        vWall(15, 8, 4);
-        vWall(17, 8, 4);
 
-        hWall(19, 8, 7);
-        hWall(19, 14, 7);
-        vWall(19, 8, 7);
-        vWall(25, 8, 7);
-        g[11][19] = 0;
-        g[11][25] = 0;
-        g[8][22]  = 0;
-        g[14][22] = 0;
-
-        solid(28, 3, 2, 2);
-        solid(34, 3, 2, 2);
-        solid(28, 9, 2, 2);
-        solid(34, 9, 2, 2);
-        solid(31, 6, 2, 2);
-
-        hWall(2, 17, 7);
-        hWall(2, 19, 5);
-
-        hWall(14, 17, 7);
-        vWall(17, 17, 4);
-
-        hWall(27, 15, 8);
-        hWall(27, 21, 8);
-        vWall(27, 15, 7);
-        vWall(34, 15, 7);
-        g[15][30] = 0;
-        g[18][27] = 0;
-
-        vWall(37, 3, 5);
-        vWall(37, 12, 5);
-
-        return { grid: g, COLS, ROWS };
-    }
-
-    // ─── Create ──────────────────────────────────────────────────────────────────
-
-    create() {
-        const TILE_SIZE = 64;
-        const { grid, COLS, ROWS } = this.buildMatrix();
-
-        this.matrix    = grid;
-        this.TILE_SIZE = TILE_SIZE;
-        this.COLS      = COLS;
-        this.ROWS      = ROWS;
-
-        grid.forEach((row, r) => {
-            row.forEach((cell, c) => {
-                const x = c * TILE_SIZE + TILE_SIZE / 2;
-                const y = r * TILE_SIZE + TILE_SIZE / 2;
-                this.add.image(x, y, cell === 1 ? 'wall' : 'floor')
-                    .setDisplaySize(TILE_SIZE, TILE_SIZE);
-            });
-        });
-
-        this.physics.world.setBounds(0, 0, COLS * TILE_SIZE, ROWS * TILE_SIZE);
-        this.cameras.main.setBounds(0, 0, COLS * TILE_SIZE, ROWS * TILE_SIZE);
-
-        const spawns = [
-            { col: 11, row: 5  },
-            { col: 22, row: 11 },
-            { col: 31, row: 5  },
-            { col: 30, row: 18 },
-        ];
-
-        this.enemies = spawns.map(({ col, row }) => {
-            const ex = col * TILE_SIZE + TILE_SIZE / 2;
-            const ey = row * TILE_SIZE + TILE_SIZE / 2;
-            const sprite = this.add.image(ex, ey, 'enemy').setScale(0.5).setDepth(5);
-            const barBg  = this.add.rectangle(ex, ey - 50, 60, 7, 0x333333).setDepth(10);
-            const barFg  = this.add.rectangle(ex - 30, ey - 50, 60, 7, 0xcc2200)
-                .setOrigin(0, 0.5).setDepth(10);
-            return { sprite, hp: 100, maxHp: 100, barBg, barFg, lastSlash: 0 };
-        });
-
-        this.player    = this.add.image(6 * TILE_SIZE, 6 * TILE_SIZE, 'manBlue_stand').setDepth(6);
-        this.lastAngle = 0;
-        this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
-
-        this.bullets    = [];
-        this.lastFired  = 0;
-        this.coins      = [];
-        this.coinCount  = 0;
-        this.slashes    = []; // enemy slash projectiles
-
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.wasd = this.input.keyboard.addKeys({
-            up:    Phaser.Input.Keyboard.KeyCodes.W,
-            down:  Phaser.Input.Keyboard.KeyCodes.S,
-            left:  Phaser.Input.Keyboard.KeyCodes.A,
-            right: Phaser.Input.Keyboard.KeyCodes.D,
-        });
-
-        this.maxHealth = 100;
-        this.health    = 100;
-
-        // ── HUD ───────────────────────────────────────────────────────────────
-        this.add.text(20, 20, 'HP', {
-            fontSize: '14px', fill: '#ffffff', fontFamily: 'Arial'
-        }).setScrollFactor(0).setDepth(10);
-
-        this.healthBarBg = this.add.rectangle(50, 29, 200, 18, 0x333333)
-            .setOrigin(0, 0.5).setScrollFactor(0).setDepth(10);
-
-        this.healthBarFill = this.add.rectangle(50, 29, 200, 18, 0x00cc44)
-            .setOrigin(0, 0.5).setScrollFactor(0).setDepth(10);
-
-        this.add.rectangle(50, 29, 200, 18)
-            .setOrigin(0, 0.5).setStrokeStyle(2, 0xffffff).setFillStyle()
-            .setScrollFactor(0).setDepth(10);
-
-        this.coinText = this.add.text(1260, 20, '🪙 0', {
-            fontSize: '18px', fill: '#FFD700', fontFamily: 'Arial',
-            stroke: '#000000', strokeThickness: 4,
-        }).setOrigin(1, 0).setScrollFactor(0).setDepth(10);
-    }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────────
 
