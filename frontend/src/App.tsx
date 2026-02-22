@@ -1,47 +1,74 @@
 import { useState } from 'react';
-import { HomeScreen } from './ui/HomeScreen';
-import { GameContainer } from './ui/GameContainer';
-import { GameOver } from './ui/GameOver';
-import { PhaserGame } from './PhaserGame';
+import { HomeScreen }    from './ui/HomeScreen';
+import { WalletConnect } from './ui/WalletConnect';
+import { GameOver }      from './ui/GameOver';
+import { PhaserGame }    from './PhaserGame';
 
-function App() {
-  const [currentScreen, setCurrentScreen] = useState<'home' | 'playing' | 'gameover'>('home');
-  
-  const [score, setScore] = useState(0);
-  const [hasWon, setHasWon] = useState(false);
+type Screen = 'home' | 'wallet' | 'playing' | 'gameover';
 
-  const handleGameOver = (finalScore: number, won: boolean) => {
-    setScore(finalScore);
-    setHasWon(won);
-    setCurrentScreen('gameover');
-  };
+export default function App() {
+    const [screen, setScreen]               = useState<Screen>('home');
+    const [walletAddress, setWalletAddress] = useState<string>('');
+    const [score, setScore]                 = useState(0);
+    const [hasWon, setHasWon]               = useState(false);
 
-  return (
-    <div className="min-h-screen bg-black flex items-center justify-center overflow-hidden">
-      
-      {currentScreen === 'home' && (
-        <HomeScreen 
-          onPlay={() => setCurrentScreen('playing')} 
-          onConnectWallet={() => console.log("Wallet connection logic goes here")} 
-          shortAddress={null}
-        />
-      )}
+    const handleWalletSuccess = (address: string) => {
+        setWalletAddress(address);
+        setScreen('playing');
+    };
 
-      {currentScreen === 'playing' && (
-        <div className="fixed inset-0 z-50">
-           <GameContainer onGameOver={handleGameOver} />
+    const handleGameOver = (finalScore: number, won: boolean) => {
+        setScore(finalScore);
+        setHasWon(won);
+        setScreen('gameover');
+    };
+
+    const handleRestart = () => {
+        // Require wallet payment again for each new game
+        setWalletAddress('');
+        setScreen('wallet');
+    };
+
+    const handleQuit = () => {
+        setWalletAddress('');
+        setScreen('home');
+    };
+
+    return (
+        <div className="min-h-screen bg-black flex items-center justify-center overflow-hidden">
+
+            {screen === 'home' && (
+                <HomeScreen onPlay={() => setScreen('wallet')} />
+            )}
+
+            {screen === 'wallet' && (
+                <div style={{ position: 'relative' }}>
+                    <HomeScreen onPlay={() => {}} />
+                    <WalletConnect
+                        onSuccess={handleWalletSuccess}
+                        onCancel={() => setScreen('home')}
+                    />
+                </div>
+            )}
+
+            {screen === 'playing' && (
+                <div className="fixed inset-0 z-50">
+                    <PhaserGame
+                        walletAddress={walletAddress}
+                        onGameOver={(finalScore, won) => handleGameOver(finalScore ?? 0, won ?? false)}
+                    />
+                </div>
+            )}
+
+            {screen === 'gameover' && (
+                <GameOver
+                    won={hasWon}
+                    score={score}
+                    onRestart={handleRestart}
+                    onQuit={handleQuit}
+                />
+            )}
+
         </div>
-      )}
-
-      {currentScreen === 'gameover' && (
-        <GameOver 
-          won={hasWon}            
-          score={score}              
-          onRestart={() => setCurrentScreen('playing')} 
-          onQuit={() => setCurrentScreen('home')}     
-        />
-      )}
-    </div>
-  );
+    );
 }
-export default App;

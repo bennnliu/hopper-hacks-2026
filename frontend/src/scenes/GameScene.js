@@ -47,7 +47,8 @@ export class GameScene extends Phaser.Scene {
         this.load.image('bullet',          'assets/bullet.png');
         this.load.image('slash',           'assets/slash.png');
         this.load.image('coin',            'assets/coin.png');
-        // Enemy textures per type
+        // All enemy types share the same sprite for now.
+        // Add enemy_brute.png / enemy_boss.png to assets/ when you have them.
         this.load.image('enemy_grunt',     'assets/enemy.png');
         this.load.image('enemy_brute',     'assets/enemy.png');
         this.load.image('enemy_boss',      'assets/enemy.png');
@@ -525,10 +526,18 @@ export class GameScene extends Phaser.Scene {
 
     _onPlayerDead() {
         this._showGameOver();
+        this._triggerGameOverCallback();
     }
 
     _onGameOver(data) {
         this._showGameOver(data);
+        this._triggerGameOverCallback(data);
+    }
+
+    // Calls the React-side onGameOver (which fires the Solana refund)
+    _triggerGameOverCallback(data) {
+        const cb = this.registry.get('onGameOver');
+        if (typeof cb === 'function') cb(data);
     }
 
     // ──────────────────────────────────────────────────────────────────────
