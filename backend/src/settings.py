@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users'
+    'rest_framework', 
+    'game_logic', 
+
 ]
 
 MIDDLEWARE = [
