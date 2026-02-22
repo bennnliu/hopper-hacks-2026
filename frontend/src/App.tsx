@@ -12,6 +12,11 @@ export default function App() {
     const [score, setScore]                 = useState(0);
     const [hasWon, setHasWon]               = useState(false);
 
+    // Short address shown in the top-right of HomeScreen when connected
+    const shortAddress = walletAddress
+        ? `${walletAddress.slice(0, 4)}…${walletAddress.slice(-4)}`
+        : null;
+
     const handleWalletSuccess = (address: string) => {
         setWalletAddress(address);
         setScreen('playing');
@@ -24,7 +29,6 @@ export default function App() {
     };
 
     const handleRestart = () => {
-        // Require wallet payment again for each new game
         setWalletAddress('');
         setScreen('wallet');
     };
@@ -35,19 +39,31 @@ export default function App() {
     };
 
     return (
-        <div className="min-h-screen bg-black flex items-center justify-center overflow-hidden">
+        <div className="min-h-screen w-screen bg-black flex items-center justify-center overflow-hidden">
 
             {screen === 'home' && (
-                <HomeScreen onPlay={() => setScreen('wallet')} />
+                <HomeScreen
+                    onPlay={()           => setScreen('wallet')}
+                    onConnectWallet={()  => setScreen('wallet')}
+                    shortAddress={shortAddress}
+                />
             )}
 
+            {/* Wallet modal overlays the home screen */}
             {screen === 'wallet' && (
-                <div style={{ position: 'relative' }}>
-                    <HomeScreen onPlay={() => {}} />
-                    <WalletConnect
-                        onSuccess={handleWalletSuccess}
-                        onCancel={() => setScreen('home')}
+                <div className="relative flex items-center justify-center w-full h-full">
+                    <HomeScreen
+                        onPlay={() => {}}
+                        onConnectWallet={() => {}}
+                        shortAddress={shortAddress}
                     />
+                    {/* Add this absolute overlay wrapper to center the popup over the game */}
+                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60">
+                        <WalletConnect
+                            onSuccess={handleWalletSuccess}
+                            onCancel={() => setScreen('home')}
+                        />
+                    </div>
                 </div>
             )}
 

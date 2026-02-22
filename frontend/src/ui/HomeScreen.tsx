@@ -3,8 +3,8 @@ import { Credits } from './Credits';
 
 interface HomeScreenProps {
   onPlay: () => void;
-  onConnectWallet: () => void;
-  shortAddress: string | null;
+  onConnectWallet?: () => void;
+  shortAddress?: string | null; 
 }
 
 const injectStyles = () => {
@@ -13,7 +13,9 @@ const injectStyles = () => {
   style.id = 'pixel-styles';
   style.textContent = `
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    
     .px-font { font-family: 'Press Start 2P', monospace; image-rendering: pixelated; }
+    
     .px-crt::before {
       content: '';
       position: absolute;
@@ -26,6 +28,7 @@ const injectStyles = () => {
       pointer-events: none;
       z-index: 20;
     }
+    
     .px-crt::after {
       content: '';
       position: absolute;
@@ -34,16 +37,21 @@ const injectStyles = () => {
       pointer-events: none;
       z-index: 21;
     }
-    .px-title-green {
-      color: #00ff46;
-      text-shadow: 4px 4px 0px #003a10, 0 0 8px #00ff46, 0 0 24px #00cc38;
+    
+    /* Solana Green */
+    .px-title-primary {
+      color: #14F195;
+      text-shadow: 4px 4px 0px #085e3a, 0 0 8px #14F195, 0 0 24px #14F195;
     }
-    .px-title-red {
-      color: #ff2020;
-      text-shadow: 4px 4px 0px #3a0000, 0 0 8px #ff2020, 0 0 24px #cc1010;
+    
+    /* Solana Purple */
+    .px-title-secondary {
+      color: #9945FF;
+      text-shadow: 4px 4px 0px #401b6e, 0 0 8px #9945FF, 0 0 24px #9945FF;
     }
+    
     .px-btn {
-      background: #00ff46;
+      background: #14F195;
       color: #000;
       font-family: 'Press Start 2P', monospace;
       font-size: 14px;
@@ -52,44 +60,49 @@ const injectStyles = () => {
       border: none;
       cursor: pointer;
       image-rendering: pixelated;
-      box-shadow: 4px 4px 0px #007a22, inset -2px -2px 0px rgba(0,0,0,0.25), inset 2px 2px 0px rgba(255,255,255,0.2);
+      box-shadow: 4px 4px 0px #0b8a55, inset -2px -2px 0px rgba(0,0,0,0.25), inset 2px 2px 0px rgba(255,255,255,0.4);
       transition: transform 0.05s, box-shadow 0.05s, background 0.05s;
     }
+    
     .px-btn:hover {
-      background: #33ff6e;
-      box-shadow: 4px 4px 0px #007a22, inset -2px -2px 0px rgba(0,0,0,0.25), inset 2px 2px 0px rgba(255,255,255,0.25), 0 0 20px rgba(0,255,70,0.5);
+      background: #3affaa;
+      box-shadow: 4px 4px 0px #0b8a55, inset -2px -2px 0px rgba(0,0,0,0.25), inset 2px 2px 0px rgba(255,255,255,0.5), 0 0 20px rgba(20,241,149,0.5);
     }
+    
     .px-btn:active {
       transform: translate(4px, 4px);
       box-shadow: none;
     }
+    
     .px-sep {
       height: 2px;
       background: repeating-linear-gradient(
         90deg,
-        #00ff46 0px, #00ff46 4px,
+        #14F195 0px, #14F195 4px,
         transparent 4px, transparent 8px
       );
-      opacity: 0.3;
+      opacity: 0.4;
     }
+    
     .px-blink { animation: pxBlink 1s step-end infinite; }
     @keyframes pxBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+    
     .px-flicker { animation: pxFlicker 10s infinite; }
     @keyframes pxFlicker {
       0%,88%,90.5%,100% { opacity:1; }
       89%,90% { opacity:0.75; }
     }
+    
     .px-footer-link {
       cursor: pointer;
       transition: color 0.1s;
     }
-    .px-footer-link:hover { color: rgba(0,255,70,0.7); }
+    .px-footer-link:hover { color: #14F195; }
   `;
   document.head.appendChild(style);
 };
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onPlay , onConnectWallet, 
-  shortAddress }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onPlay }) => {
   useEffect(() => { injectStyles(); }, []);
 
   const [showCredits, setShowCredits] = useState(false);
@@ -98,82 +111,62 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onPlay , onConnectWallet
     <div
       className="px-font px-crt px-flicker relative overflow-hidden"
       style={{
+        margin: 'auto', /* THIS IS THE MAGIC CENTERING FIX */
         width: 860,
         height: 520,
         flexShrink: 0,
-        backgroundColor: '#020c04',
+        backgroundColor: '#05020a', 
         backgroundImage: `
-          linear-gradient(rgba(0,255,70,0.035) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(0,255,70,0.035) 1px, transparent 1px)
+          linear-gradient(rgba(153,69,255,0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(153,69,255,0.05) 1px, transparent 1px)
         `,
         backgroundSize: '8px 8px',
-        border: '4px solid #00ff46',
+        border: '4px solid #9945FF',
         boxShadow: `
           0 0 0 2px #000,
-          0 0 0 4px #00ff46,
+          0 0 0 4px #9945FF,
           0 0 0 6px #000,
           inset 0 0 0 2px #000,
-          inset 0 0 0 4px #001a08,
-          0 0 40px rgba(0,255,70,0.2)
+          inset 0 0 0 4px #1a082e,
+          0 0 40px rgba(153,69,255,0.2)
         `,
       }}
     >
       <div className="relative z-10 flex flex-col h-full">
-
-       
-        <div className="flex justify-end px-6 py-3">
-          {shortAddress ? (
-            <div className="px-wallet-connected">◈ {shortAddress}</div>
-          ) : (
-            <button className="px-wallet-btn" onClick={onConnectWallet}>
-              ◈ LINK TO SOLONA WALLET
-            </button>
-          )}
-        </div>
+        {/* ... (Keep the rest of your inner JSX exactly the same) ... */}
+        <div style={{ minHeight: 42 }} />
 
         <div className="px-sep mx-6" />
 
         <div className="flex flex-col items-center justify-center flex-1 gap-6 px-10">
-
-          <div className="text-center">
-            <div className="px-title-green" style={{ fontSize: '3.4rem', lineHeight: 1, letterSpacing: 4 }}>
-              SOLQUEST
+          <div className="text-center mt-4">
+            <div className="px-title-primary" style={{ fontSize: '4.5rem', lineHeight: 1, letterSpacing: 6 }}>
+              SOL
             </div>
-            <div className="px-title-red" style={{ fontSize: '3.4rem', lineHeight: 1, letterSpacing: 4, marginTop: 6 }}>
-              DUNGEON
-            </div>
-            <div style={{ fontSize: 7, color: '#00ff46', letterSpacing: 3, marginTop: 10 }}>
-              HACK - FIGHT - EARN 
+            <div className="px-title-secondary" style={{ fontSize: '4.5rem', lineHeight: 1, letterSpacing: 6, marginTop: 12 }}>
+              QUEST
             </div>
           </div>
 
-          <button className="px-btn" onClick={onPlay}>
+          <button className="px-btn mt-4" onClick={onPlay}>
             ▶  PLAY
           </button>
 
-          
-          <div style={{ fontSize: 7, color: '#00ff46', letterSpacing: 1 }}>
-            <span className="px-key">WASD</span>MOVE &nbsp;&nbsp;
-            <span className="px-key">SPACE</span>ATTACK &nbsp;&nbsp;
-          </div>
-
-         
-          <div style={{ fontSize: 7, color: 'rgba(0,255,70,0.28)', letterSpacing: 2 }}>
+          <div style={{ fontSize: 9, color: 'rgba(20,241,149,0.8)', letterSpacing: 2, marginTop: 10 }}>
             <span className="px-footer-link" onClick={() => setShowCredits(true)}>
               CREDITS
             </span>
           </div>
-
         </div>
 
         <div className="px-sep mx-6" />
-        <div className="flex items-center justify-center gap-3 px-6 py-3">
-          <span className="px-blink" style={{ fontSize: 10, color: '#ffd700' }}>★</span>
-          <span style={{ fontSize: 8, color: '#ffd700', letterSpacing: 3 }}>
-            INSERT COIN TO CONTINUE
+        <div className="flex items-center justify-center gap-3 px-6 py-4">
+          <span className="px-blink" style={{ fontSize: 10, color: '#14F195' }}>★</span>
+          <span style={{ fontSize: 10, color: '#14F195', letterSpacing: 3 }}>
+            INSERT SOL TO CONTINUE
           </span>
+          <span className="px-blink" style={{ fontSize: 10, color: '#14F195' }}>★</span>
         </div>
-
       </div>
 
       {showCredits && <Credits onClose={() => setShowCredits(false)} />}
