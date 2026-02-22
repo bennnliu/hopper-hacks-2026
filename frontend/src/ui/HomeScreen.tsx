@@ -1,13 +1,8 @@
-
-
 import { useEffect, useState } from 'react';
-import { HowToPlay } from './HowToPlay';
 import { Credits } from './Credits';
 
 interface HomeScreenProps {
   onPlay: () => void;
-  onConnectWallet: () => void;
-  walletAddress?: string | null;
 }
 
 const injectStyles = () => {
@@ -66,41 +61,6 @@ const injectStyles = () => {
       transform: translate(4px, 4px);
       box-shadow: none;
     }
-    .px-wallet-btn {
-      background: transparent;
-      color: #00ff46;
-      border: 2px solid #00ff46;
-      font-family: 'Press Start 2P', monospace;
-      font-size: 7px;
-      letter-spacing: 1px;
-      padding: 6px 12px;
-      cursor: pointer;
-      box-shadow: 2px 2px 0px #007a22;
-      transition: all 0.05s;
-    }
-    .px-wallet-btn:hover  { background: #00ff46; color: #000; }
-    .px-wallet-btn:active { transform: translate(2px,2px); box-shadow: none; }
-    .px-wallet-connected {
-      background: #00ff46;
-      color: #000;
-      border: 2px solid #00ff46;
-      font-family: 'Press Start 2P', monospace;
-      font-size: 7px;
-      letter-spacing: 1px;
-      padding: 6px 12px;
-      box-shadow: 2px 2px 0px #007a22;
-    }
-    .px-key {
-      display: inline-block;
-      background: #001a08;
-      color: #00ff46;
-      border: 2px solid #00ff46;
-      padding: 2px 6px;
-      font-family: 'Press Start 2P', monospace;
-      font-size: 7px;
-      box-shadow: 2px 2px 0px #007a22;
-      margin-right: 4px;
-    }
     .px-sep {
       height: 2px;
       background: repeating-linear-gradient(
@@ -117,10 +77,6 @@ const injectStyles = () => {
       0%,88%,90.5%,100% { opacity:1; }
       89%,90% { opacity:0.75; }
     }
-    .px-sol-reward {
-      color: #ffd700;
-      text-shadow: 2px 2px 0 #7a5c00, 0 0 8px rgba(255,215,0,0.5);
-    }
     .px-footer-link {
       cursor: pointer;
       transition: color 0.1s;
@@ -130,20 +86,10 @@ const injectStyles = () => {
   document.head.appendChild(style);
 };
 
-type Modal = 'howtoplay' | 'credits' | null;
-
-export const HomeScreen: React.FC<HomeScreenProps> = ({
-  onPlay,
-  onConnectWallet,
-  walletAddress,
-}) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onPlay }) => {
   useEffect(() => { injectStyles(); }, []);
 
-  const [modal, setModal] = useState<Modal>(null);
-
-  const shortAddress = walletAddress
-    ? `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`
-    : null;
+  const [showCredits, setShowCredits] = useState(false);
 
   return (
     <div
@@ -169,24 +115,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         `,
       }}
     >
-
       <div className="relative z-10 flex flex-col h-full">
 
-       
-        <div className="flex justify-end px-6 py-3">
-          {shortAddress ? (
-            <div className="px-wallet-connected">◈ {shortAddress}</div>
-          ) : (
-            <button className="px-wallet-btn" onClick={onConnectWallet}>
-              ◈ LINK TO SOLANA WALLET
-            </button>
-          )}
-        </div>
+        <div style={{ minHeight: 42 }} />
 
         <div className="px-sep mx-6" />
 
         <div className="flex flex-col items-center justify-center flex-1 gap-6 px-10">
-
 
           <div className="text-center">
             <div className="px-title-green" style={{ fontSize: '3.4rem', lineHeight: 1, letterSpacing: 4 }}>
@@ -200,33 +135,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
           </div>
 
-        
           <button className="px-btn" onClick={onPlay}>
             ▶  PLAY
           </button>
 
-          
-          <div style={{ fontSize: 7, color: '#00ff46', letterSpacing: 1 }}>
-            <span className="px-key">WASD</span>MOVE &nbsp;&nbsp;
-          </div>
-
-         
           <div style={{ fontSize: 7, color: 'rgba(0,255,70,0.28)', letterSpacing: 2 }}>
-            <span className="px-footer-link" onClick={() => setModal('howtoplay')}>
-              HOW TO PLAY
-            </span>
-            {' '}&nbsp;·&nbsp;{' '}
-            <span className="px-footer-link" onClick={() => setModal('credits')}>
+            <span className="px-footer-link" onClick={() => setShowCredits(true)}>
               CREDITS
             </span>
           </div>
 
         </div>
 
-        
         <div className="px-sep mx-6" />
         <div className="flex items-center justify-center gap-3 px-6 py-3">
-          <span className="px-blink" style={{ fontSize: 10, color: '#ffd700' }}></span>
+          <span className="px-blink" style={{ fontSize: 10, color: '#ffd700' }}>★</span>
           <span style={{ fontSize: 8, color: '#ffd700', letterSpacing: 3 }}>
             INSERT COIN TO CONTINUE
           </span>
@@ -234,10 +157,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
       </div>
 
-      
-      {modal === 'howtoplay' && <HowToPlay onClose={() => setModal(null)} />}
-      {modal === 'credits'   && <Credits   onClose={() => setModal(null)} />}
-
+      {showCredits && <Credits onClose={() => setShowCredits(false)} />}
     </div>
   );
 };

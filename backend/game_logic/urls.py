@@ -7,4 +7,4 @@ urlpatterns = [
     path('generate/kill-enemy/',  views.KillEnemyView.as_view(),     name='kill_enemy'),
     path('generate/leave-room/',  views.LeaveRoomView.as_view(),     name='leave_room'),
     path('generate/enemy/',       views.GenerateEnemyView.as_view(), name='generate_enemy'),
-]
+]   
